@@ -1,4 +1,4 @@
-import { createCardElement, removeCardElement } from "./components/card.js";
+import { createCardElement, removeCardElement, updateCardLike } from "./components/card.js";
 import {
   openModalWindow,
   closeModalWindow,
@@ -12,6 +12,7 @@ import {
   setUserAvatar,
   addNewCard,
   deleteCardFromServer,
+  changeLikeCardStatus,
 } from "./components/api.js";
 
 // Настройки валидации
@@ -129,6 +130,17 @@ const handlePreviewPicture = ({ name, link }) => {
   openModalWindow(imageModalWindow);
 };
 
+// Обработчик лайка карточки
+const handleLikeCard = (likeButton, likeCount, cardId, isLiked) => {
+  changeLikeCardStatus(cardId, isLiked)
+    .then((updatedCard) => {
+      updateCardLike(likeButton, likeCount, updatedCard.likes.length);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
+
 // Запрос подтверждения удаления карточки
 const handleDeleteRequest = (cardElement, cardId) => {
   cardToDelete = { element: cardElement, id: cardId };
@@ -215,6 +227,7 @@ const handleCardFormSubmit = (evt) => {
           onPreviewPicture: handlePreviewPicture,
           onDeleteCard: handleDeleteRequest,
           onInfoClick: handleInfoClick,
+          onLikeCard: handleLikeCard,
         })
       );
       closeModalWindow(cardFormModalWindow);
@@ -278,6 +291,7 @@ Promise.all([getUserInfo(), getCardList()])
           onPreviewPicture: handlePreviewPicture,
           onDeleteCard: handleDeleteRequest,
           onInfoClick: handleInfoClick,
+          onLikeCard: handleLikeCard,
         })
       );
     });

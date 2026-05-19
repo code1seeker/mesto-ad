@@ -1,5 +1,3 @@
-import { changeLikeCardStatus } from "./api.js";
-
 const getTemplate = () => {
   return document
     .getElementById("card-template")
@@ -11,10 +9,15 @@ export const removeCardElement = (cardElement) => {
   cardElement.remove();
 };
 
+export const updateCardLike = (likeButton, likeCount, likesLength) => {
+  likeButton.classList.toggle("card__like-button_is-active");
+  likeCount.textContent = likesLength;
+};
+
 export const createCardElement = (
   cardData,
   userId,
-  { onPreviewPicture, onDeleteCard, onInfoClick }
+  { onPreviewPicture, onDeleteCard, onInfoClick, onLikeCard }
 ) => {
   const cardElement = getTemplate();
   const likeButton = cardElement.querySelector(".card__like-button");
@@ -49,14 +52,9 @@ export const createCardElement = (
   // Лайк / снятие лайка
   likeButton.addEventListener("click", () => {
     const isLiked = likeButton.classList.contains("card__like-button_is-active");
-    changeLikeCardStatus(cardData._id, isLiked)
-      .then((updatedCard) => {
-        likeButton.classList.toggle("card__like-button_is-active");
-        likeCount.textContent = updatedCard.likes.length;
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    if (typeof onLikeCard === "function") {
+      onLikeCard(likeButton, likeCount, cardData._id, isLiked);
+    }
   });
 
   // Открытие полноразмерного изображения
